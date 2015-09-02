@@ -1,0 +1,85 @@
+begin parameters
+
+	k_RAD51_sson	1
+	k_RAD51_ssoff	1
+	k_BRCA2_sson	1
+	k_BRCA2_ssoff	1
+	k_RAD51_dson	1
+	k_RAD51_dsoff	1
+	k_BRCA2_dson	1
+	k_BRCA2_dsoff	1
+	kpp_on	1		#on rate for RAD51/BRCA2 protein-protein interaction
+	kpp_off	1		#off rate for RAD51/BRCA2 protein-protein interaction
+	ssDNA_start 100
+	dsDNA_start 100
+	BRCA2_start	100
+	RAD51_start	100
+	sigma		1000
+	
+end parameters
+
+begin molecule types
+
+	DNA(b,b,type~ss~ds)
+	BRCA2(b,c)
+	RAD51(b,c)
+	
+end molecule types
+
+begin seed species
+
+	DNA(b,b,type~ss)			ssDNA_start
+	DNA(b,b,type~ds)			dsDNA_start
+	BRCA2(b,c)			BRCA2_start
+	RAD51(b,c)			RAD51_start
+	
+end seed species
+
+begin reaction rules
+
+########## PROTEIN-PROTEIN INTERACTION RULES ##########
+
+	RAD51(c) + BRCA2(c) <-> RAD51(c!1).BRCA2(c!1)		kpp_on, kpp_off
+	
+	RAD51(b!+,c).BRCA2(b!+,c) <-> RAD51(b!+,c!1).BRCA2(b!+,c!1)		kpp_on*sigma, kpp_off
+
+########## SSDNA INTERACTION RULES ###########
+
+	RAD51(b) + DNA(b,type~ss) <-> RAD51(b!1).DNA(b!1,type~ss)		k_RAD51_sson, k_RAD51_ssoff
+	
+	BRCA2(b) + DNA(b,type~ss) <-> BRCA2(b!1).DNA(b!1,type~ss)		k_BRCA2_sson, k_BRCA2_ssoff
+	
+	DNA(b!+,b,type~ss).RAD51(b) <-> DNA(b!+,b!1,type~ss).RAD51(b!1)		k_RAD51_sson*sigma, k_RAD51_ssoff
+	
+	DNA(b!+,b,type~ss).BRCA2(b) <-> DNA(b!+,b!1,type~ss).BRCA2(b!1)		k_BRCA2_sson*sigma, k_BRCA2_ssoff
+
+########### DSDNA INTERACTION RULES ############
+
+	RAD51(b) + DNA(b,type~ds) <-> RAD51(b!1).DNA(b!1,type~ds)		k_RAD51_dson, k_RAD51_dsoff
+	
+	BRCA2(b) + DNA(b,type~ds) <-> BRCA2(b!1).DNA(b!1,type~ds)		k_BRCA2_dson, k_BRCA2_dsoff
+		
+	DNA(b!+,b,type~ds).RAD51(b) <-> DNA(b!+,b!1,type~ds).RAD51(b!1)		k_RAD51_dson*sigma, k_RAD51_dsoff
+	
+	DNA(b!+,b,type~ds).BRCA2(b) <-> DNA(b!+,b!1,type~ds).BRCA2(b!1)		k_BRCA2_dson*sigma, k_BRCA2_dsoff
+
+	
+end reaction rules
+
+begin observables
+
+	#Molecules complex1 ssDNA().RAD51()
+	Molecules complex1 DNA(type~ss).RAD51().BRCA2() 
+	Molecules complex2 DNA(type~ds).RAD51().BRCA2()
+	#Molecules complex2 ssDNA(b!1,b!2).RAD51(b!1,c!3).BRCA2(b!2,c!3)
+	#Molecules Bound_Rad51 RAD51(b!+,c!+)
+	#Molecules Bound_BRCA2 BRCA2(b!+,c!+)
+	#Molecules onlyDNA_Rad51 RAD51(b!+,c)
+	#Molecules onlyDNA_Brca2 BRCA2(b!+,c)
+	#Molecules Brca2_Rad51 RAD51(b,c!1).BRCA2(b,c!1)
+		
+end observables
+	
+#actions
+generate_network({overwrite=>1,max_agg=>3}) #added a constraint to limit the maximum number of molecules in any species to 3!
+writeMfile({})
