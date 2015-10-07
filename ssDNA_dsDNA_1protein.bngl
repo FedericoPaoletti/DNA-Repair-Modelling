@@ -1,0 +1,53 @@
+begin parameters
+
+	k_X_sson	1
+	k_X_ssoff	1
+	k_X_dson	1
+	k_X_dsoff	1
+	X_start		100
+	ssDNA_start 100000
+	dsDNA_start 100000
+	
+end parameters
+
+begin molecule types
+
+	DNA(b,type~ss~ds)
+	X(b)
+	
+end molecule types
+
+begin seed species
+
+	DNA(b,type~ss)			ssDNA_start
+	DNA(b,type~ds)			dsDNA_start
+	X(b)					X_start
+	
+end seed species
+
+begin reaction rules
+
+########## DNA INTERACTION RULES ###########
+
+	X(b) + DNA(b,type~ss) <-> X(b!1).DNA(b!1,type~ss)		k_X_sson, k_X_ssoff  #SINGLE BOND COMPLEX
+	
+	X(b) + DNA(b,type~ds) <-> X(b!1).DNA(b!1,type~ds)		k_X_dson, k_X_dsoff  #SINGLE BOND COMPLEX
+	
+end reaction rules
+
+begin observables
+
+	#Molecules complex1 DNA(type~ss).X() 
+	#Molecules complex2 DNA(type~ds).X()
+	Molecules complex2 DNA(type~ss).X(), DNA(type~ds).X()
+	#Molecules Bound_Rad51 X(b!+,c!+)
+	#Molecules Bound_X X(b!+,c!+)
+	#Molecules onlyDNA_Rad51 X(b!+,c)
+	#Molecules onlyDNA_Brca2 X(b!+,c)
+	#Molecules Brca2_Rad51 X(b,c!1).X(b,c!1)
+		
+end observables
+	
+#actions
+generate_network({overwrite=>1,max_agg=>2}) #added a constraint to limit the maximum number of molecules in any species to 2!
+writeMfile({})
