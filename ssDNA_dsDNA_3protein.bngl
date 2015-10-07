@@ -1,0 +1,121 @@
+begin parameters
+
+	k_RAD51_sson	1
+	k_RAD51_ssoff	1
+	k_BRCA2_sson	1
+	k_BRCA2_ssoff	1
+	k_PALB2_sson	1
+	k_PALB2_ssoff	1
+	k_RAD51_dson	1
+	k_RAD51_dsoff	1
+	k_BRCA2_dson	1
+	k_BRCA2_dsoff	1
+	k_PALB2_dson	1
+	k_PALB2_dsoff	1
+	
+	
+	kpp_RAD51_BRCA2_on	1		#on rate for RAD51/BRCA2 protein-protein interaction
+	kpp_RAD51_BRCA2_off	1		#off rate for RAD51/BRCA2 protein-protein interaction
+	kpp_RAD51_PALB2_on  1
+	kpp_RAD51_PALB2_off 1
+	kpp_PALB2_BRCA2_on  1
+	kpp_PALB2_BRCA2_off 1
+	ssDNA_start 100
+	dsDNA_start 100
+	BRCA2_start	100
+	RAD51_start	100
+	PALB2_start 100
+	sigma		1000
+	
+end parameters
+
+begin molecule types
+
+	DNA(b,b,b,type~ss~ds)
+	BRCA2(b,c1,c2)			#Assume BRCA2 can interact with two other proteins simultaneously!
+	RAD51(b,c2,c3)
+	PALB2(b,c1,c3)
+	
+end molecule types
+
+begin seed species
+
+	DNA(b,b,b,type~ss)		ssDNA_start
+	DNA(b,b,b,type~ds)		dsDNA_start
+	BRCA2(b,c1,c2)			BRCA2_start
+	RAD51(b,c2,c3)			RAD51_start
+	PALB2(b,c1,c3)			PALB2_start
+	
+end seed species
+
+begin reaction rules
+
+########## PROTEIN-PROTEIN INTERACTION RULES ##########
+
+	RAD51(c2) + BRCA2(c2) <-> RAD51(c2!1).BRCA2(c2!1)		kpp_RAD51_BRCA2_on, kpp_RAD51_BRCA2_off 
+	
+	RAD51(b!+,c2).BRCA2(b!+,c2) <-> RAD51(b!+,c2!1).BRCA2(b!+,c2!1)		kpp_RAD51_BRCA2_on*sigma, kpp_RAD51_BRCA2_off
+	
+	RAD51(c3) + PALB2(c3) <-> RAD51(c3!1).PALB2(c3!1)		kpp_RAD51_PALB2_on, kpp_RAD51_PALB2_off
+	
+	RAD51(b!+,c3).PALB2(b!+,c3) <-> RAD51(b!+,c3!1).PALB2(b!+,c3!1)		kpp_RAD51_PALB2_on*sigma, kpp_RAD51_PALB2_off
+	
+	PALB2(c1) + BRCA2(c1) <-> PALB2(c1!1).BRCA2(c1!1)		kpp_PALB2_BRCA2_on, kpp_PALB2_BRCA2_off  
+	
+	PALB2(b!+,c1).BRCA2(b!+,c1) <-> PALB2(b!+,c1!1).BRCA2(b!+,c1!1)		kpp_PALB2_BRCA2_on*sigma, kpp_PALB2_BRCA2_off 
+
+########## SSDNA INTERACTION RULES ###########
+
+	RAD51(b) + DNA(b,type~ss) <-> RAD51(b!1).DNA(b!1,type~ss)		k_RAD51_sson, k_RAD51_ssoff
+	
+	BRCA2(b) + DNA(b,type~ss) <-> BRCA2(b!1).DNA(b!1,type~ss)		k_BRCA2_sson, k_BRCA2_ssoff
+	
+	PALB2(b) + DNA(b,type~ss) <-> PALB2(b!1).DNA(b!1,type~ss)		k_PALB2_sson, k_PALB2_ssoff
+	
+	DNA(b!+,b,type~ss).RAD51(b) <-> DNA(b!+,b!1,type~ss).RAD51(b!1)		k_RAD51_sson*sigma, k_RAD51_ssoff
+	
+	DNA(b!+,b,type~ss).BRCA2(b) <-> DNA(b!+,b!1,type~ss).BRCA2(b!1)		k_BRCA2_sson*sigma, k_BRCA2_ssoff
+	
+	DNA(b!+,b,type~ss).PALB2(b) <-> DNA(b!+,b!1,type~ss).PALB2(b!1)		k_PALB2_sson*sigma, k_PALB2_ssoff
+
+########### DSDNA INTERACTION RULES ############
+
+	RAD51(b) + DNA(b,type~ds) <-> RAD51(b!1).DNA(b!1,type~ds)		k_RAD51_dson, k_RAD51_dsoff
+	
+	BRCA2(b) + DNA(b,type~ds) <-> BRCA2(b!1).DNA(b!1,type~ds)		k_BRCA2_dson, k_BRCA2_dsoff
+	
+	PALB2(b) + DNA(b,type~ds) <-> PALB2(b!1).DNA(b!1,type~ds)		k_PALB2_dson, k_PALB2_dsoff
+		
+	DNA(b!+,b,type~ds).RAD51(b) <-> DNA(b!+,b!1,type~ds).RAD51(b!1)		k_RAD51_dson*sigma, k_RAD51_dsoff
+	
+	DNA(b!+,b,type~ds).BRCA2(b) <-> DNA(b!+,b!1,type~ds).BRCA2(b!1)		k_BRCA2_dson*sigma, k_BRCA2_dsoff
+	
+	DNA(b!+,b,type~ds).PALB2(b) <-> DNA(b!+,b!1,type~ds).PALB2(b!1)		k_PALB2_dson*sigma, k_PALB2_dsoff
+
+
+end reaction rules
+
+begin observables
+
+	#Molecules complex1 DNA(type~ss).RAD51().BRCA2().PALB2() 
+	#Molecules complex2 DNA(type~ds).RAD51().BRCA2().PALB2()
+	#Molecules complex3 DNA(b!1,b,b,type~ss).RAD51(b!1,c2,c3), DNA(b!1,b,b,type~ss).BRCA2(b!1,c1,c2), DNA(b!1,b,b,type~ss).PALB2(b!1,c1,c3)
+	#Molecules complex4 DNA(b!1,b,b,type~ds).RAD51(b!1,c2,c3), DNA(b!1,b,b,type~ds).BRCA2(b!1,c1,c2), DNA(b!1,b,b,type~ds).PALB2(b!1,c1,c3)
+	#Molecules complex5 DNA(type~ss,b).RAD51(c3).BRCA2(c1), DNA(type~ss,b).RAD51(c2).PALB2(c1), DNA(type~ss,b).PALB2(c3).BRCA2(c2)
+	#Molecules complex6 DNA(type~ds,b).RAD51(c3).BRCA2(c1), DNA(type~ds,b).RAD51(c2).PALB2(c1), DNA(type~ds,b).PALB2(c3).BRCA2(c2)
+	
+	Molecules Bound_RAD51 RAD51(b!+)
+	
+	#Molecules complex2 ssDNA(b!1,b!2).RAD51(b!1,c!3).BRCA2(b!2,c!3)
+	#Molecules Bound_Rad51 RAD51(b!+)
+	#Molecules Bound_BRCA2 BRCA2(b!+,c!+)
+	#Molecules onlyDNA_Rad51 RAD51(b!+,c)
+	#Molecules onlyDNA_Brca2 BRCA2(b!+,c)
+	#Molecules Brca2_Rad51 RAD51(b,c!1).BRCA2(b,c!1)
+		
+end observables
+	
+#actions
+generate_network({overwrite=>1,max_agg=>4,max_stoich=>{DNA=>1}}) #added a constraint to limit the maximum number of molecules in any species to 4! Now add constraint to limit number of DNA monomers, RAD51, BRCA2 and PALB2 to 1!
+writeMfile({})
+	
