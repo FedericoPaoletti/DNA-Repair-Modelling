@@ -1,0 +1,86 @@
+begin parameters
+
+	k_self_on	1
+	k_self_off	1
+	k_ssDNA_on	1
+	k_ssDNA_off	1
+	k_dsDNA_on	1
+	k_dsDNA_off	1
+	Rad51_start	1
+	Rad51_ssDNA_binding_sites 1
+	Rad51_dsDNA_binding_sites 1
+	sigma		1
+	
+end parameters
+
+begin molecule types
+	
+	Rad51(a,a,state~ssDNA~dsDNA~sol)
+			
+end molecule types
+
+begin seed species
+
+	Rad51(a,a,state~sol)		Rad51_start
+	Rad51(a,a,state~ssDNA)		0
+	Rad51(a,a,state~dsDNA)		0
+	
+end seed species
+
+begin reaction rules
+
+######Reactions on ssDNA######
+
+	#Rad51 self-association in solution (monomer + monomer OR monomer + polymer)
+	Rad51(a,a,state~sol) + Rad51(a,state~sol) <-> Rad51(a!1,a,state~sol).Rad51(a!1,state~sol)			k_self_on, k_self_off exclude_reactants(2,Rad51(state~ssDNA),Rad51(state~dsDNA))
+		
+	#Rad51 binding to ssDNA
+	Rad51(a,a,state~sol) <-> Rad51(a,a,state~ssDNA)																k_ssDNA_on * Rad51_ssDNA_binding_sites, k_ssDNA_off 
+	
+	#Rad51 monomer in solution binding to DNA-bound Rad51 (either monomer or polymer)			
+	Rad51(a,a,state~sol) + Rad51(a,state~ssDNA) <->  Rad51(a!1,a,state~sol).Rad51(a!1,state~ssDNA)			k_self_on, k_self_off
+			
+	#Rad51 bound to DNA-bound Rad51 now binding to DNA (LOCAL CONCENTRATION EFFECT)		
+	Rad51(a!1,a,state~sol).Rad51(a!1,state~ssDNA) <-> Rad51(a!1,a,state~ssDNA).Rad51(a!1,state~ssDNA)			k_ssDNA_on * sigma, k_ssDNA_off
+	
+	#Rad51 monomer in solution binds to DNA in close proximity to DNA-bound Rad51 (monomer or polymer)			
+	Rad51(a,a,state~sol) + Rad51(a,state~ssDNA) <->  Rad51(a,a,state~ssDNA).Rad51(a,state~ssDNA)				k_ssDNA_on, k_ssDNA_off
+	
+	#Rad51 DNA-bound monomer now binds to DNA-bound Rad51 (monomer or polymer) (LOCAL CONCENTRATION EFFECT)			
+	Rad51(a,a,state~ssDNA).Rad51(a,state~ssDNA) <->  Rad51(a!1,a,state~ssDNA).Rad51(a!1,state~ssDNA)				k_self_on * sigma, k_self_off
+	
+	######Reactions on dsDNA######
+
+	#Rad51 binding to dsDNA
+	Rad51(a,a,state~sol) <-> Rad51(a,a,state~dsDNA)																k_dsDNA_on * Rad51_dsDNA_binding_sites, k_dsDNA_off 
+	
+	#Rad51 monomer in solution binding to DNA-bound Rad51 (either monomer or polymer)			
+	Rad51(a,a,state~sol) + Rad51(a,state~dsDNA) <->  Rad51(a!1,a,state~sol).Rad51(a!1,state~dsDNA)			k_self_on, k_self_off
+			
+	#Rad51 bound to DNA-bound Rad51 now binding to DNA (LOCAL CONCENTRATION EFFECT)		
+	Rad51(a!1,a,state~sol).Rad51(a!1,state~dsDNA) <-> Rad51(a!1,a,state~dsDNA).Rad51(a!1,state~dsDNA)			k_dsDNA_on * sigma, k_dsDNA_off
+	
+	#Rad51 monomer in solution binds to DNA in close proximity to DNA-bound Rad51 (monomer or polymer)			
+	Rad51(a,a,state~sol) + Rad51(a,state~dsDNA) <->  Rad51(a,a,state~dsDNA).Rad51(a,state~dsDNA)				k_dsDNA_on, k_dsDNA_off
+	
+	#Rad51 DNA-bound monomer now binds to DNA-bound Rad51 (monomer or polymer) (LOCAL CONCENTRATION EFFECT)			
+	Rad51(a,a,state~dsDNA).Rad51(a,state~dsDNA) <->  Rad51(a!1,a,state~dsDNA).Rad51(a!1,state~dsDNA)				k_self_on * sigma, k_self_off
+
+	
+	
+	
+end reaction rules
+
+begin observables
+
+	Species polymer2 Rad51(a!1,a,state~sol).Rad51(a!1,a,state~sol), Rad51(a!1,a,state~sol).Rad51(a!1,a,state~ssDNA), Rad51(a!1,a,state~ssDNA).Rad51(a!1,a,state~ssDNA)
+	
+end observables
+	
+#actions
+generate_network({overwrite=>1,max_agg=>5}) #added a constraint to limit the maximum number of molecules in any species to 5!
+writeMfile({})
+	
+	 
+	
+	
