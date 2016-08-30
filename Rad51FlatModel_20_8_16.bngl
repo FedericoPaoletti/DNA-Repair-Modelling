@@ -1,0 +1,104 @@
+begin parameters
+
+k_1			1
+k_min1		1
+k_2			1
+k_on		1
+k_pol_on	1
+k_ss_1		1
+k_ds_1 		1
+k_ss_2		1
+k_ds_2		1
+k_ss_3		1
+k_ds_3		1
+k_ss_4		1
+k_ds_4		1
+k_ss_5		1
+k_ds_5		1
+Rad51_start	1
+ss 			1
+ds 			1
+
+end parameters
+
+begin molecule types
+
+R1(state~ss~ds~sol)
+R2(state~ss~ds~sol)
+R3(state~ss~ds~sol)
+R4(state~ss~ds~sol)
+R5(state~ss~ds~sol)
+ss()
+
+end molecule types
+
+begin seed species
+
+R1(state~sol)		Rad51_start
+ss()	ss
+
+end seed species
+
+begin reaction rules
+
+R1(state~sol) + R1(state~sol) <-> R2(state~sol)   k_1, k_min1
+R2(state~sol) + R1(state~sol) <-> R3(state~sol)   k_1, k_min1
+R3(state~sol) + R1(state~sol) <-> R4(state~sol)   k_1, k_min1
+R4(state~sol) + R1(state~sol) <-> R5(state~sol)   k_1, k_min1
+
+R1(state~ss) + R1(state~sol) <-> R2(state~ss)   k_1, k_2
+R2(state~ss) + R1(state~sol) <-> R3(state~ss)   k_1, k_2
+R3(state~ss) + R1(state~sol) <-> R4(state~ss)   k_1, k_2
+R4(state~ss) + R1(state~sol) <-> R5(state~ss)   k_1, k_2
+
+R1(state~ds) + R1(state~sol) <-> R2(state~ds)   k_1, k_2
+R2(state~ds) + R1(state~sol) <-> R3(state~ds)   k_1, k_2
+R3(state~ds) + R1(state~sol) <-> R4(state~ds)   k_1, k_2
+R4(state~ds) + R1(state~sol) <-> R5(state~ds)   k_1, k_2
+
+
+R1(state~sol) + ss() <-> R1(state~ss)   k_on, k_ss_1
+R1(state~sol) <-> R1(state~ds)   k_on * ds, k_ds_1
+
+R2(state~sol) + ss() <-> R2(state~ss)   k_pol_on, k_ss_2
+R2(state~sol) <-> R2(state~ds)   k_pol_on, k_ds_2
+
+R3(state~sol) + ss() <-> R3(state~ss)   k_pol_on, k_ss_3
+R3(state~sol) <-> R3(state~ds)   k_pol_on, k_ds_3
+
+R4(state~sol) + ss() <-> R4(state~ss)   k_pol_on, k_ss_4
+R4(state~sol) <-> R4(state~ds)   k_pol_on, k_ds_4
+
+R5(state~sol) + ss() <-> R5(state~ss)   k_pol_on, k_ss_5
+R5(state~sol) <-> R5(state~ds)   k_pol_on, k_ds_5
+
+end reaction rules
+
+begin observables
+
+Species Rad51ss R1(state~ss),R2(state~ss),R3(state~ss),R4(state~ss),R5(state~ss)
+Species Rad51ds R1(state~ds),R2(state~ds),R3(state~ds),R4(state~ds),R5(state~ds)
+Species Rad51sol R1(state~sol),R2(state~sol),R3(state~sol),R4(state~sol),R5(state~sol)
+Species Rad51tot R1(),R2(),R3(),R4(),R5()
+Species Rad51solL1 R1(state~sol)
+Species Rad51ssL1 R1(state~ss)
+Species Rad51dsL1 R1(state~ds)
+Species Rad51solL2 R2(state~sol)
+Species Rad51ssL2 R2(state~ss)
+Species Rad51dsL2 R2(state~ds)
+Species Rad51solL3 R3(state~sol)
+Species Rad51ssL3 R3(state~ss)
+Species Rad51dsL3 R3(state~ds)
+Species Rad51solL4 R4(state~sol)
+Species Rad51ssL4 R4(state~ss)
+Species Rad51dsL4 R4(state~ds)
+Species Rad51solL5 R5(state~sol)
+Species Rad51ssL5 R5(state~ss)
+Species Rad51dsL5 R5(state~ds)
+Species ssNucleationSites ss()
+
+end observables
+
+#actions
+generate_network({overwrite=>1})
+writeMfile({})
