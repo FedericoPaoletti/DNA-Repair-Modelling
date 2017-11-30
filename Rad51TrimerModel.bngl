@@ -1,0 +1,70 @@
+#Rad51TrimerModel.bngl
+
+begin parameters
+
+kf1 1		#adsorption on rate constant; arbitrary value         
+kr1 1		#adsorption off rate constant; arbitrary value             
+kf2 1		#elongation on rate constant; arbitrary value         
+kr2 1		#elongation off rate constant; arbitrary value                
+kf3 0		#gap-filling on rate constant; arbitrary value           
+kr3 0		#gap-filling off rate constant; arbitrary value           
+DNAc 1		#normalised DNA concentration; arbitrary value    
+Rad51c 1	#Rad51 DNA concentration; arbitrary value
+kr4 1		#stabilisation rate constant; arbitrary value			
+kobs1 kf1 * Rad51c		#adsorption on rate                
+kobs2 kf2 * Rad51c		#elongation on rate                     
+kobs3 kf3 * Rad51c		#gap-filling on rate
+     
+end parameters
+
+begin molecule types
+
+DNA(b1~0~1,b2~0~1,b3~0~1)
+
+end molecule types
+
+begin seed species
+
+DNA(b1~0,b2~0,b3~0)	DNAc
+
+end seed species
+
+begin reaction rules
+
+#Adsorbtion Reactions 
+
+DNA(b1~0,b2~0) <-> DNA(b1~1,b2~0)	kobs1, kr1
+	
+DNA(b1~0,b2~0,b3~0) <-> DNA(b1~0,b2~1,b3~0)	kobs1, kr1
+
+DNA(b2~0,b3~0) <-> DNA(b2~0,b3~1)	kobs1, kr1
+
+#Elongation Reactions 
+
+DNA(b1~1,b2~0,b3~0) <-> DNA(b1~1,b2~1,b3~0)	kobs2, kr2
+
+DNA(b1~0,b2~1,b3~0) <-> DNA(b1~1,b2~1,b3~0)	kobs2, kr2
+
+DNA(b1~0,b2~1,b3~1) <-> DNA(b1~1,b2~1,b3~1)	kobs2, kr4
+
+DNA(b1~0,b2~1,b3~0) <-> DNA(b1~0,b2~1,b3~1)	kobs2, kr2
+
+DNA(b1~1,b2~1,b3~0) <-> DNA(b1~1,b2~1,b3~1)	kobs2, kr4
+
+DNA(b1~0,b2~0,b3~1) <-> DNA(b1~0,b2~1,b3~1)	kobs2, kr2
+
+#Gap-Filling Reactions
+
+DNA(b1~1,b2~0,b3~1) <-> DNA(b1~1,b2~1,b3~1)	kobs3, kr4
+
+end reaction rules
+
+
+begin observables
+
+Molecules TotalRad51 DNA(b1~1),DNA(b2~1),DNA(b3~1)
+end observables
+
+#actions
+generate_network({overwrite=>1})
+writeMfile({})}
