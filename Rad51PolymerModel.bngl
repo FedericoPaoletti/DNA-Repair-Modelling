@@ -1,0 +1,243 @@
+#Rad51PolymerModel.bngl
+begin parameters
+
+kf1 1		    #adsorption on rate constant; arbitrary value         
+kr1 1		    #adsorption off rate constant; arbitrary value             
+kf2 1		    #elongation on rate constant; arbitrary value         
+kr2 1		    #elongation off rate constant; arbitrary value                
+kf3 0		    #gap-filling on rate constant; arbitrary value           
+kr3 0		    #gap-filling off rate constant; arbitrary value           
+DNAc 1		  #normalised DNA concentration; arbitrary value    
+Rad51c 1	  #Rad51 DNA concentration; arbitrary value
+kr4 1		    #stabilisation rate constant; arbitrary value			
+kobs1 kf1 * Rad51c		  #adsorption on rate                
+kobs2 kf2 * Rad51c		  #elongation on rate                     
+kobs3 kf3 * Rad51c		  #gap-filling on rate                         
+              
+end parameters
+
+begin molecule types
+
+DNA(b1~0~1,b2~0~1,b3~0~1,b4~0~1,b5~0~1,b6~0~1,b7~0~1,b8~0~1,b9~0~1,b10~0~1,b11~0~1,b12~0~1,b13~0~1,b14~0~1,b15~0~1,b16~0~1)
+Timer()   #Needed to trigger end of Rad51 injection
+
+end molecule types
+
+begin functions
+
+testFunc1() = if(TimerCount>60,0,1)   #At t = 60 s during the SPR experiment, Rad51 concentration drops to 0 due to end of protein injection
+
+end functions
+
+begin seed species
+
+DNA(b1~0,b2~0,b3~0,b4~0,b5~0,b6~0,b7~0,b8~0,b9~0,b10~0,b11~0,b12~0,b13~0,b14~0,b15~0,b16~0)	DNAc
+Timer()		0
+
+end seed species
+
+begin reaction rules
+
+0 -> Timer() 1
+
+#Adsorbtion Reactions 
+
+DNA(b1~0,b2~0) <-> DNA(b1~1,b2~0)			kobs1 * testFunc1(), kr1
+	
+DNA(b1~0,b2~0,b3~0) <-> DNA(b1~0,b2~1,b3~0)		kobs1 * testFunc1(), kr1
+
+DNA(b2~0,b3~0,b4~0) <-> DNA(b2~0,b3~1,b4~0)		kobs1 * testFunc1(), kr1
+
+DNA(b3~0,b4~0,b5~0) <-> DNA(b3~0,b4~1,b5~0)		kobs1 * testFunc1(), kr1
+	
+DNA(b4~0,b5~0,b6~0) <-> DNA(b4~0,b5~1,b6~0)		kobs1 * testFunc1(), kr1
+
+DNA(b5~0,b6~0,b7~0) <-> DNA(b5~0,b6~1,b7~0)		kobs1 * testFunc1(), kr1
+
+DNA(b6~0,b7~0,b8~0) <-> DNA(b6~0,b7~1,b8~0)		kobs1 * testFunc1(), kr1
+
+DNA(b7~0,b8~0,b9~0) <-> DNA(b7~0,b8~1,b9~0)		kobs1 * testFunc1(), kr1
+
+DNA(b8~0,b9~0,b10~0) <-> DNA(b8~0,b9~1,b10~0)		kobs1 * testFunc1(), kr1
+
+DNA(b9~0,b10~0,b11~0) <-> DNA(b9~0,b10~1,b11~0)	kobs1 * testFunc1(), kr1
+
+DNA(b10~0,b11~0,b12~0) <-> DNA(b10~0,b11~1,b12~0)	kobs1 * testFunc1(), kr1
+
+DNA(b11~0,b12~0,b13~0) <-> DNA(b11~0,b12~1,b13~0)	kobs1 * testFunc1(), kr1
+
+DNA(b12~0,b13~0,b14~0) <-> DNA(b12~0,b13~1,b14~0)	kobs1 * testFunc1(), kr1
+
+DNA(b13~0,b14~0,b15~0) <-> DNA(b13~0,b14~1,b15~0)	kobs1 * testFunc1(), kr1
+
+DNA(b14~0,b15~0,b16~0) <-> DNA(b14~0,b15~1,b16~0)	kobs1 * testFunc1(), kr1
+
+DNA(b15~0,b16~0) <-> DNA(b15~0,b16~1)			kobs1 * testFunc1(), kr1
+
+#Elongation Reactions 
+
+DNA(b1~1,b2~0,b3~0) <-> DNA(b1~1,b2~1,b3~0)	kobs2 * testFunc1(), kr2
+
+DNA(b1~0,b2~1,b3~0) <-> DNA(b1~1,b2~1,b3~0)	kobs2 * testFunc1(), kr2
+
+DNA(b1~0,b2~1,b3~1) <-> DNA(b1~1,b2~1,b3~1)	kobs2 * testFunc1(), kr4
+
+DNA(b1~0,b2~1,b3~0,b4~0) <-> DNA(b1~0,b2~1,b3~1,b4~0)	kobs2 * testFunc1(), kr2
+
+DNA(b1~1,b2~1,b3~0,b4~0) <-> DNA(b1~1,b2~1,b3~1,b4~0)	kobs2 * testFunc1(), kr4
+
+DNA(b1~0,b2~0,b3~1,b4~0) <-> DNA(b1~0,b2~1,b3~1,b4~0)	kobs2 * testFunc1(), kr2
+
+DNA(b1~0,b2~0,b3~1,b4~1) <-> DNA(b1~0,b2~1,b3~1,b4~1)	kobs2 * testFunc1(), kr4
+
+DNA(b2~0,b3~1,b4~0,b5~0) <-> DNA(b2~0,b3~1,b4~1,b5~0)	kobs2 * testFunc1(), kr2
+
+DNA(b2~1,b3~1,b4~0,b5~0) <-> DNA(b2~1,b3~1,b4~1,b5~0)	kobs2 * testFunc1(), kr4
+
+DNA(b2~0,b3~0,b4~1,b5~0) <-> DNA(b2~0,b3~1,b4~1,b5~0)	kobs2 * testFunc1(), kr2
+
+DNA(b2~0,b3~0,b4~1,b5~1) <-> DNA(b2~0,b3~1,b4~1,b5~1)	kobs2 * testFunc1(), kr4
+
+DNA(b3~0,b4~1,b5~0,b6~0) <-> DNA(b3~0,b4~1,b5~1,b6~0)	kobs2 * testFunc1(), kr2
+
+DNA(b3~1,b4~1,b5~0,b6~0) <-> DNA(b3~1,b4~1,b5~1,b6~0)	kobs2 * testFunc1(), kr4
+
+DNA(b3~0,b4~0,b5~1,b6~0) <-> DNA(b3~0,b4~1,b5~1,b6~0)	kobs2 * testFunc1(), kr2
+
+DNA(b3~0,b4~0,b5~1,b6~1) <-> DNA(b3~0,b4~1,b5~1,b6~1)	kobs2 * testFunc1(), kr4
+
+DNA(b4~0,b5~1,b6~0,b7~0) <-> DNA(b4~0,b5~1,b6~1,b7~0)	kobs2 * testFunc1(), kr2
+
+DNA(b4~1,b5~1,b6~0,b7~0) <-> DNA(b4~1,b5~1,b6~1,b7~0)	kobs2 * testFunc1(), kr4
+
+DNA(b4~0,b5~0,b6~1,b7~0) <-> DNA(b4~0,b5~1,b6~1,b7~0)	kobs2 * testFunc1(), kr2
+
+DNA(b4~0,b5~0,b6~1,b7~1) <-> DNA(b4~0,b5~1,b6~1,b7~1)	kobs2 * testFunc1(), kr4
+
+DNA(b5~0,b6~1,b7~0,b8~0) <-> DNA(b5~0,b6~1,b7~1,b8~0)	kobs2 * testFunc1(), kr2
+
+DNA(b5~1,b6~1,b7~0,b8~0) <-> DNA(b5~1,b6~1,b7~1,b8~0)	kobs2 * testFunc1(), kr4
+
+DNA(b5~0,b6~0,b7~1,b8~0) <-> DNA(b5~0,b6~1,b7~1,b8~0)	kobs2 * testFunc1(), kr2
+
+DNA(b5~0,b6~0,b7~1,b8~1) <-> DNA(b5~0,b6~1,b7~1,b8~1)	kobs2 * testFunc1(), kr4
+
+
+
+DNA(b6~0,b7~1,b8~0,b9~0) <-> DNA(b6~0,b7~1,b8~1,b9~0)	kobs2 * testFunc1(), kr2
+
+DNA(b6~1,b7~1,b8~0,b9~0) <-> DNA(b6~1,b7~1,b8~1,b9~0)	kobs2 * testFunc1(), kr4
+
+DNA(b6~0,b7~0,b8~1,b9~0) <-> DNA(b6~0,b7~1,b8~1,b9~0)	kobs2 * testFunc1(), kr2
+
+DNA(b6~0,b7~0,b8~1,b9~1) <-> DNA(b6~0,b7~1,b8~1,b9~1)	kobs2 * testFunc1(), kr4
+
+DNA(b7~0,b8~1,b9~0,b10~0) <-> DNA(b7~0,b8~1,b9~1,b10~0)	kobs2 * testFunc1(), kr2
+
+DNA(b7~1,b8~1,b9~0,b10~0) <-> DNA(b7~1,b8~1,b9~1,b10~0)	kobs2 * testFunc1(), kr4
+
+DNA(b7~0,b8~0,b9~1,b10~0) <-> DNA(b7~0,b8~1,b9~1,b10~0)	kobs2 * testFunc1(), kr2
+
+DNA(b7~0,b8~0,b9~1,b10~1) <-> DNA(b7~0,b8~1,b9~1,b10~1)	kobs2 * testFunc1(), kr4
+
+DNA(b8~0,b9~1,b10~0,b11~0) <-> DNA(b8~0,b9~1,b10~1,b11~0)	kobs2 * testFunc1(), kr2
+
+DNA(b8~1,b9~1,b10~0,b11~0) <-> DNA(b8~1,b9~1,b10~1,b11~0)	kobs2 * testFunc1(), kr4
+
+DNA(b8~0,b9~0,b10~1,b11~0) <-> DNA(b8~0,b9~1,b10~1,b11~0)	kobs2 * testFunc1(), kr2
+
+DNA(b8~0,b9~0,b10~1,b11~1) <-> DNA(b8~0,b9~1,b10~1,b11~1)	kobs2 * testFunc1(), kr4
+
+DNA(b9~0,b10~1,b11~0,b12~0) <-> DNA(b9~0,b10~1,b11~1,b12~0)	kobs2 * testFunc1(), kr2
+
+DNA(b9~1,b10~1,b11~0,b12~0) <-> DNA(b9~1,b10~1,b11~1,b12~0)	kobs2 * testFunc1(), kr4
+
+DNA(b9~0,b10~0,b11~1,b12~0) <-> DNA(b9~0,b10~1,b11~1,b12~0)	kobs2 * testFunc1(), kr2
+
+DNA(b9~0,b10~0,b11~1,b12~1) <-> DNA(b9~0,b10~1,b11~1,b12~1)	kobs2 * testFunc1(), kr4
+
+DNA(b10~0,b11~1,b12~0,b13~0) <-> DNA(b10~0,b11~1,b12~1,b13~0)	kobs2 * testFunc1(), kr2
+
+DNA(b10~1,b11~1,b12~0,b13~0) <-> DNA(b10~1,b11~1,b12~1,b13~0)	kobs2 * testFunc1(), kr4
+
+DNA(b10~0,b11~0,b12~1,b13~0) <-> DNA(b10~0,b11~1,b12~1,b13~0)	kobs2 * testFunc1(), kr2
+
+DNA(b10~0,b11~0,b12~1,b13~1) <-> DNA(b10~0,b11~1,b12~1,b13~1)	kobs2 * testFunc1(), kr4
+
+DNA(b11~0,b12~1,b13~0,b14~0) <-> DNA(b11~0,b12~1,b13~1,b14~0)	kobs2 * testFunc1(), kr2
+
+DNA(b11~1,b12~1,b13~0,b14~0) <-> DNA(b11~1,b12~1,b13~1,b14~0)	kobs2 * testFunc1(), kr4
+
+DNA(b11~0,b12~0,b13~1,b14~0) <-> DNA(b11~0,b12~1,b13~1,b14~0)	kobs2 * testFunc1(), kr2
+
+DNA(b11~0,b12~0,b13~1,b14~1) <-> DNA(b11~0,b12~1,b13~1,b14~1)	kobs2 * testFunc1(), kr4
+
+DNA(b12~0,b13~1,b14~0,b15~0) <-> DNA(b12~0,b13~1,b14~1,b15~0)	kobs2 * testFunc1(), kr2
+
+DNA(b12~1,b13~1,b14~0,b15~0) <-> DNA(b12~1,b13~1,b14~1,b15~0)	kobs2 * testFunc1(), kr4
+
+DNA(b12~0,b13~0,b14~1,b15~0) <-> DNA(b12~0,b13~1,b14~1,b15~0)	kobs2 * testFunc1(), kr2
+
+DNA(b12~0,b13~0,b14~1,b15~1) <-> DNA(b12~0,b13~1,b14~1,b15~1)	kobs2 * testFunc1(), kr4
+
+DNA(b13~0,b14~1,b15~0,b16~0) <-> DNA(b13~0,b14~1,b15~1,b16~0)	kobs2 * testFunc1(), kr2
+
+DNA(b13~1,b14~1,b15~0,b16~0) <-> DNA(b13~1,b14~1,b15~1,b16~0)	kobs2 * testFunc1(), kr4
+
+DNA(b13~0,b14~0,b15~1,b16~0) <-> DNA(b13~0,b14~1,b15~1,b16~0)	kobs2 * testFunc1(), kr2
+
+DNA(b13~0,b14~0,b15~1,b16~1) <-> DNA(b13~0,b14~1,b15~1,b16~1)	kobs2 * testFunc1(), kr4
+
+DNA(b14~0,b15~1,b16~0) <-> DNA(b14~0,b15~1,b16~1)	kobs2 * testFunc1(), kr2
+
+DNA(b14~1,b15~1,b16~0) <-> DNA(b14~1,b15~1,b16~1)	kobs2 * testFunc1(), kr4
+
+DNA(b14~0,b15~0,b16~1) <-> DNA(b14~0,b15~1,b16~1)	kobs2 * testFunc1(), kr2
+
+#Gap-Filling Reactions
+
+DNA(b1~1,b2~0,b3~1) <-> DNA(b1~1,b2~1,b3~1)		kobs3 * testFunc1(), kr3
+
+DNA(b2~1,b3~0,b4~1) <-> DNA(b2~1,b3~1,b4~1)		kobs3 * testFunc1(), kr3
+
+DNA(b3~1,b4~0,b5~1) <-> DNA(b3~1,b4~1,b5~1)		kobs3 * testFunc1(), kr3
+
+DNA(b4~1,b5~0,b6~1) <-> DNA(b4~1,b5~1,b6~1)		kobs3 * testFunc1(), kr3
+
+DNA(b5~1,b6~0,b7~1) <-> DNA(b5~1,b6~1,b7~1)		kobs3 * testFunc1(), kr3
+
+DNA(b6~1,b7~0,b8~1) <-> DNA(b6~1,b7~1,b8~1)		kobs3 * testFunc1(), kr3
+
+DNA(b7~1,b8~0,b9~1) <-> DNA(b7~1,b8~1,b9~1)		kobs3 * testFunc1(), kr3
+
+DNA(b8~1,b9~0,b10~1) <-> DNA(b8~1,b9~1,b10~1)		kobs3 * testFunc1(), kr3
+
+DNA(b9~1,b10~0,b11~1) <-> DNA(b9~1,b10~1,b11~1)	kobs3 * testFunc1(), kr3
+
+DNA(b10~1,b11~0,b12~1) <-> DNA(b10~1,b11~1,b12~1)	kobs3 * testFunc1(), kr3
+
+DNA(b11~1,b12~0,b13~1) <-> DNA(b11~1,b12~1,b13~1)	kobs3 * testFunc1(), kr3
+
+DNA(b12~1,b13~0,b14~1) <-> DNA(b12~1,b13~1,b14~1)	kobs3 * testFunc1(), kr3
+
+DNA(b13~1,b14~0,b15~1) <-> DNA(b13~1,b14~1,b15~1)	kobs3 * testFunc1(), kr3
+
+DNA(b14~1,b15~0,b16~1) <-> DNA(b14~1,b15~1,b16~1)	kobs3 * testFunc1(), kr3
+
+
+end reaction rules
+
+begin observables
+
+
+Molecules TotalRad51 DNA(b1~1),DNA(b2~1),DNA(b3~1),DNA(b4~1),DNA(b5~1),DNA(b6~1),DNA(b7~1),DNA(b8~1),DNA(b9~1),DNA(b10~1),DNA(b11~1),DNA(b12~1),DNA(b13~1),DNA(b14~1),DNA(b15~1),DNA(b16~1)
+Molecules TimerCount Timer()
+
+
+end observables
+
+#actions
+#generate_network({overwrite=>1}) 
+#writeMfile({})
+#writeXML({})
+simulate_ode({netfile=>"Rad51_DNA_SPR_Model_16Blocks_TimeCount.net",atol=>1e-11,rtol=>1e-10,print_CDAT=>0,n_steps=>12512,sparse=>1,t_start=>0,t_end=>1251.2})
